@@ -1,0 +1,61 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Daily Income & Expenses</h2>
+    <a href="{{ route('transactions.create') }}" class="btn btn-primary">Add Transaction</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        @if($transactions->isEmpty())
+            <div class="p-4 text-center text-muted">No transactions logged yet.</div>
+        @else
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($transactions as $transaction)
+                            <tr>
+                                <td>{{ $transaction->date->format('Y-m-d') }}</td>
+                                <td>
+                                    <span class="badge {{ $transaction->type === 'income' ? 'bg-success' : 'bg-danger' }}">
+                                        {{ ucfirst($transaction->type) }}
+                                    </span>
+                                </td>
+                                <td>{{ $transaction->category->name }}</td>
+                                <td>{{ $transaction->description ?? '-' }}</td>
+                                <td class="fw-bold {{ $transaction->type === 'income' ? 'text-success' : 'text-danger' }}">
+                                    {{ $transaction->type === 'income' ? '+' : '-' }}${{ number_format($transaction->amount / 100, 2) }}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{{ route('transactions.edit', $transaction) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                    <form method="POST" action="{{ route('transactions.destroy', $transaction) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this transaction?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @if($transactions->hasPages())
+                <div class="p-3">
+                    {{ $transactions->links() }}
+                </div>
+            @endif
+        @endif
+    </div>
+</div>
+@endsection
