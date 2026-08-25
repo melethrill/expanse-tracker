@@ -34,7 +34,8 @@ class TransactionController extends Controller
     {
         $validated = $request->validate([
             'category_id' => ['required', 'exists:categories,id'],
-            'type' => ['required', 'in:cash,card'],
+            'type' => ['required', 'in:expense,income'],
+            'transaction_type' => ['required', 'in:cash,card'],
             'amount' => ['required', 'numeric', 'gt:0'],
             'description' => ['nullable', 'string', 'max:1000'],
             'date' => ['required', 'date'],
@@ -45,6 +46,7 @@ class TransactionController extends Controller
         Auth::user()->transactions()->create([
             'category_id' => $validated['category_id'],
             'type' => $validated['type'],
+            'transaction_type' => $validated['transaction_type'],
             'amount' => $amountInCents,
             'description' => $validated['description'] ?? null,
             'date' => $validated['date'],
@@ -67,7 +69,8 @@ class TransactionController extends Controller
 
         $validated = $request->validate([
             'category_id' => ['required', 'exists:categories,id'],
-            'type' => ['required', 'in:cash,card'],
+            'type' => ['required', 'in:expense,income'],
+            'transaction_type' => ['required', 'in:cash,card'],
             'amount' => ['required', 'numeric', 'gt:0'],
             'description' => ['nullable', 'string', 'max:1000'],
             'date' => ['required', 'date'],
@@ -78,6 +81,7 @@ class TransactionController extends Controller
         $transaction->update([
             'category_id' => $validated['category_id'],
             'type' => $validated['type'],
+            'transaction_type' => $validated['transaction_type'],
             'amount' => $amountInCents,
             'description' => $validated['description'] ?? null,
             'date' => $validated['date'],

@@ -11,10 +11,18 @@
                     @method('PUT')
 
                     <div class="mb-3">
-                        <label for="type" class="form-label">Type</label>
+                        <label for="type" class="form-label">Expense Type</label>
                         <select name="type" id="type" class="form-select" required>
-                            <option value="card" {{ old('type', $transaction->type) == 'card' ? 'selected' : '' }}>Card</option>
-                            <option value="cash" {{ old('type', $transaction->type) == 'cash' ? 'selected' : '' }}>Cash</option>
+                            <option value="expense" {{ old('type', $transaction->type) == 'expense' ? 'selected' : '' }}>Expense</option>
+                            <option value="income" {{ old('type', $transaction->type) == 'income' ? 'selected' : '' }}>Income</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="transaction_type" class="form-label">Payment Method / Transaction Type</label>
+                        <select name="transaction_type" id="transaction_type" class="form-select" required>
+                            <option value="card" {{ old('transaction_type', $transaction->transaction_type) == 'card' ? 'selected' : '' }}>Card</option>
+                            <option value="cash" {{ old('transaction_type', $transaction->transaction_type) == 'cash' ? 'selected' : '' }}>Cash</option>
                         </select>
                     </div>
 

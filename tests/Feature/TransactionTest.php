@@ -26,7 +26,8 @@ class TransactionTest extends TestCase
         Transaction::create([
             'user_id' => $user->id,
             'category_id' => $category->id,
-            'type' => 'card',
+            'type' => 'expense',
+            'transaction_type' => 'card',
             'amount' => 1550,
             'description' => 'Lunch',
             'date' => '2026-01-15',
@@ -36,17 +37,20 @@ class TransactionTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('€15.50');
+        $response->assertSee('Expense');
         $response->assertSee('Card');
+        $response->assertSee('15/01/2026');
     }
 
-    public function test_authenticated_user_can_create_card_transaction_stored_in_cents(): void
+    public function test_authenticated_user_can_create_card_expense_transaction_stored_in_cents(): void
     {
         $user = User::factory()->create();
         $category = Category::where('name', 'Food')->first();
 
         $response = $this->actingAs($user)->post(route('transactions.store'), [
             'category_id' => $category->id,
-            'type' => 'card',
+            'type' => 'expense',
+            'transaction_type' => 'card',
             'amount' => '45.50',
             'description' => 'Grocery shopping',
             'date' => '2026-01-15',
@@ -56,23 +60,25 @@ class TransactionTest extends TestCase
         $this->assertDatabaseHas('transactions', [
             'user_id' => $user->id,
             'category_id' => $category->id,
-            'type' => 'card',
+            'type' => 'expense',
+            'transaction_type' => 'card',
             'amount' => 4550, // Stored in cents (45.50 * 100)
             'description' => 'Grocery shopping',
             'date' => '2026-01-15',
         ]);
     }
 
-    public function test_authenticated_user_can_create_cash_transaction(): void
+    public function test_authenticated_user_can_create_cash_income_transaction(): void
     {
         $user = User::factory()->create();
         $category = Category::where('name', 'Housing')->first();
 
         $response = $this->actingAs($user)->post(route('transactions.store'), [
             'category_id' => $category->id,
-            'type' => 'cash',
+            'type' => 'income',
+            'transaction_type' => 'cash',
             'amount' => '1200.00',
-            'description' => 'Rental payment',
+            'description' => 'Rental payment received',
             'date' => '2026-01-01',
         ]);
 
@@ -80,13 +86,15 @@ class TransactionTest extends TestCase
         $this->assertDatabaseHas('transactions', [
             'user_id' => $user->id,
             'category_id' => $category->id,
-            'type' => 'cash',
+            'type' => 'income',
+            'transaction_type' => 'cash',
             'amount' => 120000,
-            'description' => 'Rental payment',
+            'description' => 'Rental payment received',
+            'date' => '2026-01-01',
         ]);
     }
 
-    public function test_transaction_creation_requires_valid_type(): void
+    public function test_transaction_creation_requires_valid_type_and_transaction_type(): void
     {
         $user = User::factory()->create();
         $category = Category::where('name', 'Food')->first();
@@ -94,11 +102,12 @@ class TransactionTest extends TestCase
         $response = $this->actingAs($user)->post(route('transactions.store'), [
             'category_id' => $category->id,
             'type' => 'invalid_type',
+            'transaction_type' => 'invalid_transaction_type',
             'amount' => '50.00',
             'date' => '2026-01-15',
         ]);
 
-        $response->assertSessionHasErrors(['type']);
+        $response->assertSessionHasErrors(['type', 'transaction_type']);
     }
 
     public function test_user_can_edit_all_fields_of_own_transaction(): void
@@ -110,7 +119,8 @@ class TransactionTest extends TestCase
         $transaction = Transaction::create([
             'user_id' => $user->id,
             'category_id' => $category1->id,
-            'type' => 'card',
+            'type' => 'expense',
+            'transaction_type' => 'card',
             'amount' => 2000,
             'description' => 'Bus fare',
             'date' => '2026-01-10',
@@ -118,9 +128,10 @@ class TransactionTest extends TestCase
 
         $response = $this->actingAs($user)->put(route('transactions.update', $transaction), [
             'category_id' => $category2->id,
-            'type' => 'cash',
+            'type' => 'income',
+            'transaction_type' => 'cash',
             'amount' => '25.50',
-            'description' => 'Concert ticket',
+            'description' => 'Concert ticket refund',
             'date' => '2026-01-20',
         ]);
 
@@ -128,9 +139,10 @@ class TransactionTest extends TestCase
         $this->assertDatabaseHas('transactions', [
             'id' => $transaction->id,
             'category_id' => $category2->id,
-            'type' => 'cash',
+            'type' => 'income',
+            'transaction_type' => 'cash',
             'amount' => 2550,
-            'description' => 'Concert ticket',
+            'description' => 'Concert ticket refund',
             'date' => '2026-01-20',
         ]);
     }
@@ -144,7 +156,8 @@ class TransactionTest extends TestCase
         $transaction = Transaction::create([
             'user_id' => $user1->id,
             'category_id' => $category->id,
-            'type' => 'card',
+            'type' => 'expense',
+            'transaction_type' => 'card',
             'amount' => 5000,
             'description' => 'Doctor visit',
             'date' => '2026-01-12',
@@ -152,7 +165,8 @@ class TransactionTest extends TestCase
 
         $response = $this->actingAs($user2)->put(route('transactions.update', $transaction), [
             'category_id' => $category->id,
-            'type' => 'card',
+            'type' => 'expense',
+            'transaction_type' => 'card',
             'amount' => '100.00',
             'description' => 'Modified',
             'date' => '2026-01-12',
@@ -168,7 +182,8 @@ class TransactionTest extends TestCase
         $transaction = Transaction::create([
             'user_id' => $user->id,
             'category_id' => $category->id,
-            'type' => 'card',
+            'type' => 'expense',
+            'transaction_type' => 'card',
             'amount' => 1500,
             'description' => 'Movie ticket',
             'date' => '2026-01-14',
