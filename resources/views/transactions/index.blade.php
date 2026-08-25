@@ -17,6 +17,7 @@
                         <tr>
                             <th>Date</th>
                             <th>Type</th>
+                            <th>Payment Method</th>
                             <th>Category</th>
                             <th>Description</th>
                             <th>Amount</th>
@@ -26,10 +27,15 @@
                     <tbody>
                         @foreach($transactions as $transaction)
                             <tr>
-                                <td>{{ $transaction->date->format('Y-m-d') }}</td>
+                                <td>{{ $transaction->date->format('d/m/Y') }}</td>
                                 <td>
-                                    <span class="badge {{ $transaction->type === 'card' ? 'bg-info' : 'bg-secondary' }}">
+                                    <span class="badge {{ $transaction->type === 'income' ? 'bg-success' : 'bg-warning text-dark' }}">
                                         {{ ucfirst($transaction->type) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge {{ $transaction->transaction_type === 'card' ? 'bg-info' : 'bg-secondary' }}">
+                                        {{ ucfirst($transaction->transaction_type) }}
                                     </span>
                                 </td>
                                 <td>{{ $transaction->category->name }}</td>

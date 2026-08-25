@@ -29,6 +29,7 @@ class ReportTest extends TestCase
             'user_id' => $user->id,
             'category_id' => $food->id,
             'type' => 'expense',
+            'transaction_type' => 'card',
             'amount' => 4500,
             'date' => '2026-01-10',
         ]);
@@ -36,6 +37,7 @@ class ReportTest extends TestCase
             'user_id' => $user->id,
             'category_id' => $food->id,
             'type' => 'expense',
+            'transaction_type' => 'cash',
             'amount' => 1550,
             'date' => '2026-01-11',
         ]);
@@ -45,6 +47,7 @@ class ReportTest extends TestCase
             'user_id' => $user->id,
             'category_id' => $food->id,
             'type' => 'income',
+            'transaction_type' => 'card',
             'amount' => 10000,
             'date' => '2026-01-12',
         ]);
@@ -54,6 +57,7 @@ class ReportTest extends TestCase
             'user_id' => $user->id,
             'category_id' => $housing->id,
             'type' => 'expense',
+            'transaction_type' => 'card',
             'amount' => 120000,
             'date' => '2026-01-01',
         ]);
@@ -83,6 +87,7 @@ class ReportTest extends TestCase
             'user_id' => $user->id,
             'category_id' => $food->id,
             'type' => 'expense',
+            'transaction_type' => 'card',
             'amount' => 5000,
             'date' => '2026-01-15',
         ]);
@@ -92,6 +97,7 @@ class ReportTest extends TestCase
             'user_id' => $user->id,
             'category_id' => $food->id,
             'type' => 'expense',
+            'transaction_type' => 'card',
             'amount' => 3000,
             'date' => '2026-02-10',
         ]);
@@ -101,6 +107,7 @@ class ReportTest extends TestCase
             'user_id' => $user->id,
             'category_id' => $food->id,
             'type' => 'expense',
+            'transaction_type' => 'card',
             'amount' => 2000,
             'date' => '2025-01-20',
         ]);
@@ -131,6 +138,7 @@ class ReportTest extends TestCase
             'user_id' => $user1->id,
             'category_id' => $food->id,
             'type' => 'expense',
+            'transaction_type' => 'card',
             'amount' => 3000,
             'date' => '2026-01-10',
         ]);
@@ -139,6 +147,7 @@ class ReportTest extends TestCase
             'user_id' => $user2->id,
             'category_id' => $food->id,
             'type' => 'expense',
+            'transaction_type' => 'card',
             'amount' => 5000,
             'date' => '2026-01-10',
         ]);
