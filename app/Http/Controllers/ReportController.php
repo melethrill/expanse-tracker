@@ -10,17 +10,42 @@ use Illuminate\View\View;
 
 class ReportController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $user = Auth::user();
 
-        // Get total expenses grouped per category for authenticated user
+        $selectedYear = $request->input('year');
+        $selectedMonth = $request->input('month');
+
+        // Available years from user's transactions (or current year as fallback)
+        $availableYears = $user->transactions()
+            ->selectRaw('DISTINCT strftime("%Y", date) as year')
+            ->pluck('year')
+            ->filter()
+            ->map(fn ($y) => (int) $y)
+            ->sortDesc()
+            ->values()
+            ->all();
+
+        if (empty($availableYears)) {
+            $availableYears = [(int) date('Y')];
+        }
+
+        // Get total expenses grouped per category for authenticated user with year/month filter
         $categoryExpenses = Category::select('categories.id', 'categories.name')
             ->selectRaw('COALESCE(SUM(transactions.amount), 0) as total_cents')
-            ->leftJoin('transactions', function ($join) use ($user) {
+            ->leftJoin('transactions', function ($join) use ($user, $selectedYear, $selectedMonth) {
                 $join->on('categories.id', '=', 'transactions.category_id')
                     ->where('transactions.user_id', '=', $user->id)
                     ->where('transactions.type', '=', 'expense');
+
+                if (!empty($selectedYear)) {
+                    $join->whereRaw('strftime("%Y", transactions.date) = ?', [(string) $selectedYear]);
+                }
+
+                if (!empty($selectedMonth)) {
+                    $join->whereRaw('strftime("%m", transactions.date) = ?', [sprintf('%02d', (int) $selectedMonth)]);
+                }
             })
             ->groupBy('categories.id', 'categories.name')
             ->orderBy('categories.name')
@@ -28,6 +53,28 @@ class ReportController extends Controller
 
         $totalExpenseCents = $categoryExpenses->sum('total_cents');
 
-        return view('reports.index', compact('categoryExpenses', 'totalExpenseCents'));
+        $months = [
+            1 => 'January',
+            2 => 'February',
+            3 => 'March',
+            4 => 'April',
+            5 => 'May',
+            6 => 'June',
+            7 => 'July',
+            8 => 'August',
+            9 => 'September',
+            10 => 'October',
+            11 => 'November',
+            12 => 'December',
+        ];
+
+        return view('reports.index', compact(
+            'categoryExpenses',
+            'totalExpenseCents',
+            'availableYears',
+            'months',
+            'selectedYear',
+            'selectedMonth'
+        ));
     }
 }

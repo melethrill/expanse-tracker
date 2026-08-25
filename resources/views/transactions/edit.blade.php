@@ -31,7 +31,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="amount" class="form-label">Amount ($)</label>
+                        <label for="amount" class="form-label">Amount (€)</label>
                         <input type="number" step="0.01" min="0.01" name="amount" id="amount" class="form-control" value="{{ old('amount', number_format($transaction->amount / 100, 2, '.', '')) }}" required>
                     </div>
 

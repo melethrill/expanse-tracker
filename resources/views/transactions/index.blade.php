@@ -35,7 +35,7 @@
                                 <td>{{ $transaction->category->name }}</td>
                                 <td>{{ $transaction->description ?? '-' }}</td>
                                 <td class="fw-bold {{ $transaction->type === 'income' ? 'text-success' : 'text-danger' }}">
-                                    {{ $transaction->type === 'income' ? '+' : '-' }}${{ number_format($transaction->amount / 100, 2) }}
+                                    {{ $transaction->type === 'income' ? '+' : '-' }}€{{ number_format($transaction->amount / 100, 2) }}
                                 </td>
                                 <td class="text-end">
                                     <a href="{{ route('transactions.edit', $transaction) }}" class="btn btn-sm btn-outline-secondary">Edit</a>

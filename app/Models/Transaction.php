@@ -37,7 +37,7 @@ class Transaction extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function getAmountInDollarsAttribute(): float
+    public function getAmountInEurosAttribute(): float
     {
         return $this->amount / 100;
     }

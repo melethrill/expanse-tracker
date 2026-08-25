@@ -61,6 +61,9 @@ class ReportTest extends TestCase
         $response = $this->actingAs($user)->get(route('reports.index'));
 
         $response->assertStatus(200);
+        $response->assertSee('€1,260.50');
+        $response->assertSee('€60.50');
+        $response->assertSee('€1,200.00');
         $response->assertViewHas('totalExpenseCents', 126050);
         $response->assertViewHas('categoryExpenses', function ($categoryExpenses) use ($food, $housing) {
             $foodExpense = $categoryExpenses->firstWhere('id', $food->id);
@@ -68,6 +71,54 @@ class ReportTest extends TestCase
 
             return $foodExpense->total_cents == 6050 && $housingExpense->total_cents == 120000;
         });
+    }
+
+    public function test_report_filters_expenses_by_year_and_month(): void
+    {
+        $user = User::factory()->create();
+        $food = Category::where('name', 'Food')->first();
+
+        // Transaction in Jan 2026
+        Transaction::create([
+            'user_id' => $user->id,
+            'category_id' => $food->id,
+            'type' => 'expense',
+            'amount' => 5000,
+            'date' => '2026-01-15',
+        ]);
+
+        // Transaction in Feb 2026
+        Transaction::create([
+            'user_id' => $user->id,
+            'category_id' => $food->id,
+            'type' => 'expense',
+            'amount' => 3000,
+            'date' => '2026-02-10',
+        ]);
+
+        // Transaction in Jan 2025
+        Transaction::create([
+            'user_id' => $user->id,
+            'category_id' => $food->id,
+            'type' => 'expense',
+            'amount' => 2000,
+            'date' => '2025-01-20',
+        ]);
+
+        // Filter for Jan 2026
+        $response = $this->actingAs($user)->get(route('reports.index', ['year' => '2026', 'month' => '1']));
+        $response->assertStatus(200);
+        $response->assertViewHas('totalExpenseCents', 5000);
+
+        // Filter for year 2026 only
+        $responseYear = $this->actingAs($user)->get(route('reports.index', ['year' => '2026']));
+        $responseYear->assertStatus(200);
+        $responseYear->assertViewHas('totalExpenseCents', 8000);
+
+        // Filter for month 1 only (Jan 2026 + Jan 2025)
+        $responseMonth = $this->actingAs($user)->get(route('reports.index', ['month' => '1']));
+        $responseMonth->assertStatus(200);
+        $responseMonth->assertViewHas('totalExpenseCents', 7000);
     }
 
     public function test_report_only_includes_authenticated_users_expenses(): void

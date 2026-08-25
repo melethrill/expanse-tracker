@@ -21,10 +21,21 @@ class TransactionTest extends TestCase
     public function test_authenticated_user_can_view_transactions_index(): void
     {
         $user = User::factory()->create();
+        $category = Category::where('name', 'Food')->first();
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'category_id' => $category->id,
+            'type' => 'expense',
+            'amount' => 1550,
+            'description' => 'Lunch',
+            'date' => '2026-01-15',
+        ]);
 
         $response = $this->actingAs($user)->get(route('transactions.index'));
 
         $response->assertStatus(200);
+        $response->assertSee('-€15.50');
     }
 
     public function test_authenticated_user_can_create_expense_transaction_stored_in_cents(): void
