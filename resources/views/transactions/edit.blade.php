@@ -6,7 +6,7 @@
         <div class="card shadow-sm">
             <div class="card-header bg-white"><h4 class="mb-0">Edit Transaction</h4></div>
             <div class="card-body">
-                <form method="POST" action="{{ route('transactions.update', $transaction) }}">
+                <form id="edit-transaction-form" method="POST" action="{{ route('transactions.update', $transaction) }}">
                     @csrf
                     @method('PUT')
 
@@ -52,12 +52,20 @@
                         <label for="description" class="form-label">Description (Optional)</label>
                         <textarea name="description" id="description" class="form-control" rows="3">{{ old('description', $transaction->description) }}</textarea>
                     </div>
-
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ route('transactions.index') }}" class="btn btn-secondary">Cancel</a>
-                        <button type="submit" class="btn btn-primary">Update Transaction</button>
-                    </div>
                 </form>
+
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <form method="POST" action="{{ route('transactions.destroy', $transaction) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this transaction?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('transactions.index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" form="edit-transaction-form" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

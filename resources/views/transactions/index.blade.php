@@ -21,12 +21,11 @@
                             <th>Category</th>
                             <th>Description</th>
                             <th>Amount</th>
-                            <th class="text-end">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($transactions as $transaction)
-                            <tr>
+                            <tr onclick="window.location='{{ route('transactions.edit', $transaction) }}'" style="cursor: pointer;">
                                 <td>{{ $transaction->date->format('d/m/Y') }}</td>
                                 <td>
                                     <span class="badge {{ $transaction->type === 'income' ? 'bg-success' : 'bg-warning text-dark' }}">
@@ -42,14 +41,6 @@
                                 <td>{{ $transaction->description ?? '-' }}</td>
                                 <td class="fw-bold">
                                     €{{ number_format($transaction->amount / 100, 2) }}
-                                </td>
-                                <td class="text-end">
-                                    <a href="{{ route('transactions.edit', $transaction) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
-                                    <form method="POST" action="{{ route('transactions.destroy', $transaction) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this transaction?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                                    </form>
                                 </td>
                             </tr>
                         @endforeach
