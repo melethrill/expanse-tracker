@@ -11,8 +11,8 @@
                     <div class="mb-3">
                         <label for="type" class="form-label">Type</label>
                         <select name="type" id="type" class="form-select" required>
-                            <option value="expense" {{ old('type') == 'expense' ? 'selected' : '' }}>Expense</option>
-                            <option value="income" {{ old('type') == 'income' ? 'selected' : '' }}>Income</option>
+                            <option value="card" {{ old('type', 'card') == 'card' ? 'selected' : '' }}>Card</option>
+                            <option value="cash" {{ old('type') == 'cash' ? 'selected' : '' }}>Cash</option>
                         </select>
                     </div>
 

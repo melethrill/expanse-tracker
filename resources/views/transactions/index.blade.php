@@ -28,14 +28,14 @@
                             <tr>
                                 <td>{{ $transaction->date->format('Y-m-d') }}</td>
                                 <td>
-                                    <span class="badge {{ $transaction->type === 'income' ? 'bg-success' : 'bg-danger' }}">
+                                    <span class="badge {{ $transaction->type === 'card' ? 'bg-info' : 'bg-secondary' }}">
                                         {{ ucfirst($transaction->type) }}
                                     </span>
                                 </td>
                                 <td>{{ $transaction->category->name }}</td>
                                 <td>{{ $transaction->description ?? '-' }}</td>
-                                <td class="fw-bold {{ $transaction->type === 'income' ? 'text-success' : 'text-danger' }}">
-                                    {{ $transaction->type === 'income' ? '+' : '-' }}€{{ number_format($transaction->amount / 100, 2) }}
+                                <td class="fw-bold">
+                                    €{{ number_format($transaction->amount / 100, 2) }}
                                 </td>
                                 <td class="text-end">
                                     <a href="{{ route('transactions.edit', $transaction) }}" class="btn btn-sm btn-outline-secondary">Edit</a>

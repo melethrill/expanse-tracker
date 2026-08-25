@@ -34,7 +34,7 @@ class TransactionController extends Controller
     {
         $validated = $request->validate([
             'category_id' => ['required', 'exists:categories,id'],
-            'type' => ['required', 'in:income,expense'],
+            'type' => ['required', 'in:cash,card'],
             'amount' => ['required', 'numeric', 'gt:0'],
             'description' => ['nullable', 'string', 'max:1000'],
             'date' => ['required', 'date'],
@@ -67,7 +67,7 @@ class TransactionController extends Controller
 
         $validated = $request->validate([
             'category_id' => ['required', 'exists:categories,id'],
-            'type' => ['required', 'in:income,expense'],
+            'type' => ['required', 'in:cash,card'],
             'amount' => ['required', 'numeric', 'gt:0'],
             'description' => ['nullable', 'string', 'max:1000'],
             'date' => ['required', 'date'],

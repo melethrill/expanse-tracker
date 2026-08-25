@@ -26,7 +26,7 @@ class TransactionTest extends TestCase
         Transaction::create([
             'user_id' => $user->id,
             'category_id' => $category->id,
-            'type' => 'expense',
+            'type' => 'card',
             'amount' => 1550,
             'description' => 'Lunch',
             'date' => '2026-01-15',
@@ -35,17 +35,18 @@ class TransactionTest extends TestCase
         $response = $this->actingAs($user)->get(route('transactions.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('-€15.50');
+        $response->assertSee('€15.50');
+        $response->assertSee('Card');
     }
 
-    public function test_authenticated_user_can_create_expense_transaction_stored_in_cents(): void
+    public function test_authenticated_user_can_create_card_transaction_stored_in_cents(): void
     {
         $user = User::factory()->create();
         $category = Category::where('name', 'Food')->first();
 
         $response = $this->actingAs($user)->post(route('transactions.store'), [
             'category_id' => $category->id,
-            'type' => 'expense',
+            'type' => 'card',
             'amount' => '45.50',
             'description' => 'Grocery shopping',
             'date' => '2026-01-15',
@@ -55,23 +56,23 @@ class TransactionTest extends TestCase
         $this->assertDatabaseHas('transactions', [
             'user_id' => $user->id,
             'category_id' => $category->id,
-            'type' => 'expense',
+            'type' => 'card',
             'amount' => 4550, // Stored in cents (45.50 * 100)
             'description' => 'Grocery shopping',
             'date' => '2026-01-15',
         ]);
     }
 
-    public function test_authenticated_user_can_create_income_transaction(): void
+    public function test_authenticated_user_can_create_cash_transaction(): void
     {
         $user = User::factory()->create();
         $category = Category::where('name', 'Housing')->first();
 
         $response = $this->actingAs($user)->post(route('transactions.store'), [
             'category_id' => $category->id,
-            'type' => 'income',
+            'type' => 'cash',
             'amount' => '1200.00',
-            'description' => 'Rental income',
+            'description' => 'Rental payment',
             'date' => '2026-01-01',
         ]);
 
@@ -79,38 +80,58 @@ class TransactionTest extends TestCase
         $this->assertDatabaseHas('transactions', [
             'user_id' => $user->id,
             'category_id' => $category->id,
-            'type' => 'income',
+            'type' => 'cash',
             'amount' => 120000,
-            'description' => 'Rental income',
+            'description' => 'Rental payment',
         ]);
     }
 
-    public function test_user_can_edit_own_transaction(): void
+    public function test_transaction_creation_requires_valid_type(): void
     {
         $user = User::factory()->create();
-        $category = Category::where('name', 'Transportation')->first();
+        $category = Category::where('name', 'Food')->first();
+
+        $response = $this->actingAs($user)->post(route('transactions.store'), [
+            'category_id' => $category->id,
+            'type' => 'invalid_type',
+            'amount' => '50.00',
+            'date' => '2026-01-15',
+        ]);
+
+        $response->assertSessionHasErrors(['type']);
+    }
+
+    public function test_user_can_edit_all_fields_of_own_transaction(): void
+    {
+        $user = User::factory()->create();
+        $category1 = Category::where('name', 'Transportation')->first();
+        $category2 = Category::where('name', 'Entertainment')->first();
+
         $transaction = Transaction::create([
             'user_id' => $user->id,
-            'category_id' => $category->id,
-            'type' => 'expense',
+            'category_id' => $category1->id,
+            'type' => 'card',
             'amount' => 2000,
             'description' => 'Bus fare',
             'date' => '2026-01-10',
         ]);
 
         $response = $this->actingAs($user)->put(route('transactions.update', $transaction), [
-            'category_id' => $category->id,
-            'type' => 'expense',
-            'amount' => '25.00',
-            'description' => 'Taxi fare',
-            'date' => '2026-01-10',
+            'category_id' => $category2->id,
+            'type' => 'cash',
+            'amount' => '25.50',
+            'description' => 'Concert ticket',
+            'date' => '2026-01-20',
         ]);
 
         $response->assertRedirect(route('transactions.index'));
         $this->assertDatabaseHas('transactions', [
             'id' => $transaction->id,
-            'amount' => 2500,
-            'description' => 'Taxi fare',
+            'category_id' => $category2->id,
+            'type' => 'cash',
+            'amount' => 2550,
+            'description' => 'Concert ticket',
+            'date' => '2026-01-20',
         ]);
     }
 
@@ -123,7 +144,7 @@ class TransactionTest extends TestCase
         $transaction = Transaction::create([
             'user_id' => $user1->id,
             'category_id' => $category->id,
-            'type' => 'expense',
+            'type' => 'card',
             'amount' => 5000,
             'description' => 'Doctor visit',
             'date' => '2026-01-12',
@@ -131,7 +152,7 @@ class TransactionTest extends TestCase
 
         $response = $this->actingAs($user2)->put(route('transactions.update', $transaction), [
             'category_id' => $category->id,
-            'type' => 'expense',
+            'type' => 'card',
             'amount' => '100.00',
             'description' => 'Modified',
             'date' => '2026-01-12',
@@ -147,7 +168,7 @@ class TransactionTest extends TestCase
         $transaction = Transaction::create([
             'user_id' => $user->id,
             'category_id' => $category->id,
-            'type' => 'expense',
+            'type' => 'card',
             'amount' => 1500,
             'description' => 'Movie ticket',
             'date' => '2026-01-14',
