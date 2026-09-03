@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FamilyDocumentController;
+use App\Http\Controllers\FamilyMemberController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +29,17 @@ Route::middleware('auth')->group(function () {
 
     // Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+
+    // Family Members & Documents
+    Route::resource('family-members', FamilyMemberController::class)->except(['show']);
+    Route::get('/family-members/{familyMember}/download-image/{type}', [FamilyMemberController::class, 'downloadImage'])
+        ->name('family-members.download-image');
+    Route::post('/family-members/{familyMember}/documents', [FamilyDocumentController::class, 'store'])
+        ->name('family-documents.store');
+    Route::get('/family-documents/{document}/download', [FamilyDocumentController::class, 'download'])
+        ->name('family-documents.download');
+    Route::delete('/family-documents/{document}', [FamilyDocumentController::class, 'destroy'])
+        ->name('family-documents.destroy');
 
     // Admin routes
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
