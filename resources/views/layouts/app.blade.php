@@ -22,6 +22,9 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('reports.index') }}">Reports</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('family-members.index') }}">Family Data</a>
+                        </li>
                         @if(auth()->user()->isAdmin())
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
