@@ -68,13 +68,30 @@ class ReportController extends Controller
             12 => 'December',
         ];
 
+        // Query expense transactions for the selected period
+        $transactionsQuery = $user->transactions()
+            ->with('category')
+            ->where('type', 'expense')
+            ->orderBy('date', 'desc');
+
+        if (!empty($selectedYear)) {
+            $transactionsQuery->whereRaw('strftime("%Y", date) = ?', [(string) $selectedYear]);
+        }
+
+        if (!empty($selectedMonth)) {
+            $transactionsQuery->whereRaw('strftime("%m", date) = ?', [sprintf('%02d', (int) $selectedMonth)]);
+        }
+
+        $transactions = $transactionsQuery->get();
+
         return view('reports.index', compact(
             'categoryExpenses',
             'totalExpenseCents',
             'availableYears',
             'months',
             'selectedYear',
-            'selectedMonth'
+            'selectedMonth',
+            'transactions'
         ));
     }
 }

@@ -157,4 +157,57 @@ class ReportTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewHas('totalExpenseCents', 3000);
     }
+
+    public function test_report_passes_transactions_with_category_for_selected_period(): void
+    {
+        $user = User::factory()->create();
+        $food = Category::where('name', 'Food')->first();
+        $housing = Category::where('name', 'Housing')->first();
+
+        // Jan 2026 expense
+        $tx1 = Transaction::create([
+            'user_id' => $user->id,
+            'category_id' => $food->id,
+            'type' => 'expense',
+            'transaction_type' => 'card',
+            'amount' => 4500,
+            'date' => '2026-01-10',
+            'description' => 'Grocery shopping',
+        ]);
+
+        // Feb 2026 expense
+        $tx2 = Transaction::create([
+            'user_id' => $user->id,
+            'category_id' => $housing->id,
+            'type' => 'expense',
+            'transaction_type' => 'card',
+            'amount' => 120000,
+            'date' => '2026-02-01',
+            'description' => 'Monthly rent',
+        ]);
+
+        // Income transaction in Jan 2026 (should not be in report transactions)
+        Transaction::create([
+            'user_id' => $user->id,
+            'category_id' => $food->id,
+            'type' => 'income',
+            'transaction_type' => 'card',
+            'amount' => 50000,
+            'date' => '2026-01-05',
+        ]);
+
+        // Filter for Jan 2026
+        $response = $this->actingAs($user)->get(route('reports.index', ['year' => '2026', 'month' => '1']));
+
+        $response->assertStatus(200);
+        $response->assertViewHas('transactions', function ($transactions) use ($tx1, $tx2) {
+            return $transactions->contains('id', $tx1->id) && ! $transactions->contains('id', $tx2->id);
+        });
+
+        // Verify HTML markup contains expected data attributes and elements for interactive drill-down
+        $response->assertSee('data-category-id="' . $food->id . '"', false);
+        $response->assertSee('data-category-name="Food"', false);
+        $response->assertSee('id="activeFilterBadgeContainer"', false);
+        $response->assertSee('id="resetFilterBtn"', false);
+    }
 }
